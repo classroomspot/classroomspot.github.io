@@ -10,7 +10,7 @@
 <script src="/baremux/index.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 * { box-sizing: border-box; }
@@ -312,8 +312,6 @@ body::before {
     50% { opacity: 0.5; }
 }
 </style>
-<base target="_blank">
-<base target="_blank">
 </head>
 
 <body>
@@ -330,7 +328,7 @@ body::before {
         <button id="forward"><i class="fas fa-arrow-right"></i></button>
         <button id="reload"><i class="fas fa-rotate-right"></i></button>
 
-        <form class="urlbar" id="form">
+        <div class="urlbar">
             <select class="search-engine-select" id="searchEngine">
                 <option value="google">Google</option>
                 <option value="duckduckgo">DuckDuckGo</option>
@@ -341,9 +339,9 @@ body::before {
                 <option value="startpage">Startpage</option>
             </select>
             <input id="url" placeholder="Search or enter address">
-        </form>
+        </div>
 
-        <button id="popout"><i class="fas fa-external-link"></i></button>
+        <button id="popout"><i class="fas fa-external-link-alt"></i></button>
     </div>
 </div>
 
@@ -357,21 +355,29 @@ body::before {
 </div>
 
 <script>
-navigator.serviceWorker?.register("/uv/sw.js")
+if (navigator.serviceWorker) {
+    navigator.serviceWorker.register("/uv/sw.js").catch(err => console.warn("SW registration failed:", err));
+}
 
-const connection = new BareMux.BareMuxConnection("/baremux/worker.js")
-connection.setTransport("/libcurl/index.mjs", [{ websocket: "wss://wisp.rhw.one/" }])
+(async () => {
+    try {
+        const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+        await connection.setTransport("/libcurl/index.mjs", [{ websocket: "wss://wisp.rhw.one/" }]);
+    } catch(e) {
+        console.warn("BareMux init failed:", e);
+    }
+})();
 
-const tabsEl = document.getElementById("tabs")
-const newTabBtn = document.getElementById("newtab")
-const urlInput = document.getElementById("url")
-const ntp = document.getElementById("ntp")
-const loader = document.getElementById("loader")
-const searchEngineSelect = document.getElementById("searchEngine")
+const tabsEl = document.getElementById("tabs");
+const newTabBtn = document.getElementById("newtab");
+const urlInput = document.getElementById("url");
+const ntp = document.getElementById("ntp");
+const loader = document.getElementById("loader");
+const searchEngineSelect = document.getElementById("searchEngine");
 
-let tabs = []
-let activeId = null
-let idCounter = 0
+let tabs = [];
+let activeId = null;
+let idCounter = 0;
 
 const searchEngines = {
     google: "https://www.google.com/search?q=",
@@ -381,174 +387,183 @@ const searchEngines = {
     yahoo: "https://search.yahoo.com/search?p=",
     ecosia: "https://www.ecosia.org/search?q=",
     startpage: "https://www.startpage.com/sp/search?query="
-}
+};
 
 function createSnow() {
-    const container = document.getElementById('snow')
+    const container = document.getElementById('snow');
     for (let i = 0; i < 100; i++) {
-        const particle = document.createElement('div')
-        particle.className = 'particle'
-        particle.style.left = Math.random() * 100 + '%'
-        particle.style.animationDuration = (Math.random() * 4 + 2) + 's'
-        particle.style.animationDelay = Math.random() * 4 + 's'
-        particle.style.opacity = Math.random() * 0.6 + 0.3
-        const size = Math.random() * 4 + 3
-        particle.style.width = size + 'px'
-        particle.style.height = size + 'px'
-        container.appendChild(particle)
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 4 + 2) + 's';
+        particle.style.animationDelay = Math.random() * 4 + 's';
+        particle.style.opacity = Math.random() * 0.6 + 0.3;
+        const size = Math.random() * 4 + 3;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        container.appendChild(particle);
     }
 }
-createSnow()
+createSnow();
 
-function showLoader() {
-    loader.classList.add('active')
-}
+function showLoader() { loader.classList.add('active'); }
+function hideLoader() { loader.classList.remove('active'); }
 
-function hideLoader() {
-    loader.classList.remove('active')
-}
+function createTab(url) {
+    const id = idCounter++;
 
-function createTab(url = "") {
-    const id = idCounter++
+    const iframe = document.createElement("iframe");
+    iframe.className = "viewframe";
+    iframe.dataset.id = id;
+    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-pointer-lock allow-presentation");
+    document.body.appendChild(iframe);
 
-    const iframe = document.createElement("iframe")
-    iframe.className = "viewframe"
-    iframe.dataset.id = id
-
-    iframe.setAttribute("sandbox",
-        "allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
-    )
-
-    document.body.appendChild(iframe)
-
-    const tabBtn = document.createElement("div")
-    tabBtn.className = "tab"
-    tabBtn.dataset.id = id
-    tabBtn.innerHTML = `<span>New Tab</span><i class="fas fa-xmark"></i>`
+    const tabBtn = document.createElement("div");
+    tabBtn.className = "tab";
+    tabBtn.dataset.id = id;
+    tabBtn.innerHTML = `<span>New Tab</span><i class="fas fa-xmark"></i>`;
 
     tabBtn.addEventListener("click", e => {
-        if (e.target.tagName === "I") closeTab(id)
-        else activateTab(id)
-    })
+        if (e.target.closest("i")) closeTab(id);
+        else activateTab(id);
+    });
 
-    tabsEl.insertBefore(tabBtn, newTabBtn)
+    tabsEl.insertBefore(tabBtn, newTabBtn);
+    tabs.push({ id, iframe, tabBtn, history: [], index: -1 });
+    activateTab(id);
 
-    tabs.push({ id, iframe, tabBtn, history: [], index: -1 })
-    activateTab(id)
-
-    if (url) navigate(url)
+    if (url) navigate(url);
 }
 
 function activateTab(id) {
-    activeId = id
-
+    activeId = id;
     tabs.forEach(t => {
-        t.iframe.classList.toggle("active", t.id === id)
-        t.tabBtn.classList.toggle("active", t.id === id)
-    })
+        t.iframe.classList.toggle("active", t.id === id);
+        t.tabBtn.classList.toggle("active", t.id === id);
+    });
 
-    const tab = getTab()
-    if (!tab) return
+    const tab = getTab();
+    if (!tab) return;
 
     if (tab.index >= 0) {
-        urlInput.value = tab.history[tab.index]
-        ntp.style.display = "none"
+        urlInput.value = tab.history[tab.index];
+        ntp.style.display = "none";
     } else {
-        urlInput.value = ""
-        ntp.style.display = "flex"
+        urlInput.value = "";
+        ntp.style.display = "flex";
     }
 }
 
 function closeTab(id) {
-    if (tabs.length === 1) return
-
-    const i = tabs.findIndex(t => t.id === id)
-    const tab = tabs[i]
-
-    tab.iframe.remove()
-    tab.tabBtn.remove()
-    tabs.splice(i, 1)
-
-    activateTab(tabs[Math.max(0, i - 1)].id)
+    if (tabs.length === 1) return;
+    const i = tabs.findIndex(t => t.id === id);
+    const tab = tabs[i];
+    tab.iframe.remove();
+    tab.tabBtn.remove();
+    tabs.splice(i, 1);
+    activateTab(tabs[Math.max(0, i - 1)].id);
 }
 
 function normalize(input) {
-    if (!input.includes(".")) {
-        const engine = searchEngineSelect.value
-        return searchEngines[engine] + encodeURIComponent(input)
+    input = input.trim();
+    if (!input) return null;
+
+    if (/^https?:\/\//i.test(input)) return input;
+
+    if (/^[\w-]+(\.[a-z]{2,})+(\/.*)?$/i.test(input) && !input.includes(" ")) {
+        return "https://" + input;
     }
-    if (!input.startsWith("http")) return "https://" + input
-    return input
+
+    const engine = searchEngineSelect.value;
+    return searchEngines[engine] + encodeURIComponent(input);
 }
 
-function navigate(input, push = true) {
-    const tab = getTab()
-    if (!tab) return
+function navigate(input, push) {
+    if (push === undefined) push = true;
+    const tab = getTab();
+    if (!tab) return;
 
-    const url = normalize(input)
+    const url = normalize(input);
+    if (!url) return;
 
     if (push) {
-        tab.history = tab.history.slice(0, tab.index + 1)
-        tab.history.push(url)
-        tab.index++
+        tab.history = tab.history.slice(0, tab.index + 1);
+        tab.history.push(url);
+        tab.index++;
     }
 
-    showLoader()
-    tab.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url)
-    urlInput.value = url
-    ntp.style.display = "none"
+    urlInput.value = url;
+    ntp.style.display = "none";
+
+    if (typeof __uv$config === "undefined") {
+        console.error("Ultraviolet config not loaded. Make sure /uv/uv.bundle.js and /uv/uv.config.js are served correctly.");
+        hideLoader();
+        return;
+    }
+
+    showLoader();
+
+    try {
+        tab.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url);
+    } catch(e) {
+        console.error("UV encode error:", e);
+        hideLoader();
+        return;
+    }
 
     tab.iframe.onload = () => {
-        hideLoader()
-        tab.tabBtn.querySelector("span").textContent =
-            tab.iframe.contentDocument?.title || new URL(url).hostname
-    }
-
-    setTimeout(() => {
-        if (loader.classList.contains('active')) {
-            hideLoader()
+        hideLoader();
+        try {
+            const title = tab.iframe.contentDocument?.title;
+            tab.tabBtn.querySelector("span").textContent = title || new URL(url).hostname;
+        } catch(e) {
+            tab.tabBtn.querySelector("span").textContent = new URL(url).hostname;
         }
-    }, 5000)
+    };
+
+    setTimeout(() => hideLoader(), 8000);
 }
 
 function getTab() {
-    return tabs.find(t => t.id === activeId)
+    return tabs.find(t => t.id === activeId);
 }
 
-back.onclick = () => {
-    const t = getTab()
-    if (!t || t.index <= 0) return
-    t.index--
-    navigate(t.history[t.index], false)
-}
+document.getElementById("back").onclick = () => {
+    const t = getTab();
+    if (!t || t.index <= 0) return;
+    t.index--;
+    navigate(t.history[t.index], false);
+};
 
-forward.onclick = () => {
-    const t = getTab()
-    if (!t || t.index >= t.history.length - 1) return
-    t.index++
-    navigate(t.history[t.index], false)
-}
+document.getElementById("forward").onclick = () => {
+    const t = getTab();
+    if (!t || t.index >= t.history.length - 1) return;
+    t.index++;
+    navigate(t.history[t.index], false);
+};
 
-reload.onclick = () => {
-    const t = getTab()
-    if (!t) return
-    t.iframe.src = t.iframe.src
-}
+document.getElementById("reload").onclick = () => {
+    const t = getTab();
+    if (!t || !t.iframe.src) return;
+    t.iframe.src = t.iframe.src;
+};
 
-popout.onclick = () => {
-    const t = getTab()
-    if (!t) return
-    window.open(t.iframe.src, "_blank")
-}
+document.getElementById("popout").onclick = () => {
+    const t = getTab();
+    if (!t || !t.iframe.src) return;
+    window.open(t.iframe.src, "_blank");
+};
 
-form.onsubmit = e => {
-    e.preventDefault()
-    if (urlInput.value.trim()) navigate(urlInput.value)
-}
+urlInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        if (urlInput.value.trim()) navigate(urlInput.value);
+    }
+});
 
-newTabBtn.onclick = () => createTab()
+newTabBtn.onclick = () => createTab();
 
-createTab()
+createTab();
 </script>
 
 </body>
