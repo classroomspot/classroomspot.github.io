@@ -5,55 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>classroomspot web</title>
 
-<!-- FIXED: your files are at ROOT, not /uv/ or /baremux/ -->
-<script src="/uv.bundle.js"></script>
-<script src="/uv.config.js"></script>
-<script src="/worker.js"></script>
-
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Rajdhani', sans-serif; }
+body { background: url('https://cdn.wallpapersafari.com/41/51/UWuyKN.jpg') center/cover no-repeat fixed; }
+body::before { content: ''; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: -1; }
 
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: 'Rajdhani', sans-serif;
-}
-
-body {
-    background: url('https://cdn.wallpapersafari.com/41/51/UWuyKN.jpg') center/cover no-repeat fixed;
-}
-
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: -1;
-}
-
-.snow-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 1;
-    overflow: hidden;
-}
-
-.particle {
-    position: absolute;
-    background: #fff;
-    border-radius: 50%;
-    animation: fall linear infinite;
-    box-shadow: 0 0 4px rgba(255,255,255,0.8);
-}
-
+.snow-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.particle { position: absolute; background: #fff; border-radius: 50%; animation: fall linear infinite; box-shadow: 0 0 4px rgba(255,255,255,0.8); }
 @keyframes fall {
     0%   { transform: translateY(-20px) translateX(0); opacity: 1; }
     25%  { transform: translateY(25vh) translateX(15px); opacity: 0.9; }
@@ -66,94 +28,56 @@ body::before {
     height: 96px;
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(20px);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     border-bottom: 1px solid rgba(255,255,255,0.3);
-    z-index: 10;
-    position: relative;
+    z-index: 10; position: relative;
 }
-
 .tabs {
-    height: 38px;
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    gap: 6px;
-    overflow-x: auto;
+    height: 38px; display: flex; align-items: center;
+    padding: 0 8px; gap: 6px; overflow-x: auto;
 }
-
 .tab {
-    height: 28px;
-    min-width: 160px;
-    max-width: 220px;
-    padding: 0 12px;
-    border-radius: 8px 8px 0 0;
-    background: rgba(30,30,30,0.9);
-    color: #aaa;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
+    height: 28px; min-width: 160px; max-width: 220px;
+    padding: 0 12px; border-radius: 8px 8px 0 0;
+    background: rgba(30,30,30,0.9); color: #aaa;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s; font-family: 'Orbitron', sans-serif; font-size: 12px;
 }
-
 .tab.active {
-    background: rgba(50,50,50,0.95);
-    color: #fff;
+    background: rgba(50,50,50,0.95); color: #fff;
     border-color: rgba(255,255,255,0.5);
-    box-shadow: 0 0 15px rgba(255,255,255,0.3), inset 0 0 10px rgba(255,255,255,0.1);
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
     text-shadow: 0 0 10px rgba(255,255,255,0.8);
 }
-
 .tab span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tab i { opacity: 0.6; transition: all 0.2s; }
 .tab i:hover { opacity: 1; color: #ff4444; }
 
 .newtab {
-    width: 32px; height: 32px;
-    border-radius: 6px; border: none;
-    background: transparent; color: #fff;
-    cursor: pointer; transition: all 0.3s;
+    width: 32px; height: 32px; border-radius: 6px; border: none;
+    background: transparent; color: #fff; cursor: pointer; transition: all 0.3s;
 }
 .newtab:hover { background: rgba(255,255,255,0.2); }
 
-.navbar {
-    height: 58px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 12px;
-}
-
+.navbar { height: 58px; display: flex; align-items: center; gap: 10px; padding: 0 12px; }
 .navbar button {
-    width: 34px; height: 34px;
-    border-radius: 50%; border: none;
-    background: transparent; color: #fff;
-    cursor: pointer; transition: all 0.3s;
+    width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: transparent; color: #fff; cursor: pointer; transition: all 0.3s;
 }
 .navbar button:hover { background: rgba(255,255,255,0.2); }
 
 .urlbar {
-    flex: 1; height: 36px;
-    background: rgba(10,10,10,0.9);
-    border-radius: 18px;
-    padding: 0 16px;
+    flex: 1; height: 36px; background: rgba(10,10,10,0.9);
+    border-radius: 18px; padding: 0 16px;
     display: flex; align-items: center;
-    border: 1px solid rgba(255,255,255,0.3);
-    transition: all 0.3s;
+    border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s;
 }
-.urlbar:focus-within {
-    border-color: rgba(255,255,255,0.6);
-    box-shadow: 0 0 20px rgba(255,255,255,0.3);
-}
+.urlbar:focus-within { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 20px rgba(255,255,255,0.3); }
 .urlbar input {
-    width: 100%; height: 100%;
-    background: transparent; border: none; outline: none;
-    color: #fff; font-size: 14px;
-    font-family: 'Rajdhani', sans-serif;
+    width: 100%; height: 100%; background: transparent;
+    border: none; outline: none; color: #fff;
+    font-size: 14px; font-family: 'Rajdhani', sans-serif;
 }
 .urlbar input::placeholder { color: rgba(255,255,255,0.5); }
 
@@ -165,52 +89,38 @@ body::before {
 .search-engine-select option { background: #111; color: #fff; }
 
 .viewframe {
-    position: absolute;
-    top: 96px; left: 0;
+    position: absolute; top: 96px; left: 0;
     width: 100%; height: calc(100% - 96px);
     border: none; display: none; z-index: 5;
 }
 .viewframe.active { display: block; }
 
 .ntp {
-    position: absolute;
-    top: 96px; left: 0;
+    position: absolute; top: 96px; left: 0;
     width: 100%; height: calc(100% - 96px);
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 5;
+    align-items: center; justify-content: center; z-index: 5;
 }
-
 .ntp h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 4rem; font-weight: 700;
-    color: #fff; letter-spacing: 4px;
+    font-family: 'Orbitron', sans-serif; font-size: 4rem;
+    font-weight: 700; color: #fff; letter-spacing: 4px;
     animation: pulse 3s ease-in-out infinite;
 }
-
 @keyframes pulse {
-    0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 30px rgba(255,255,255,0.5), 0 0 50px rgba(255,255,255,0.3); }
-    50%      { text-shadow: 0 0 20px rgba(255,255,255,1),   0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.5); }
+    0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 30px rgba(255,255,255,0.5); }
+    50%      { text-shadow: 0 0 20px #fff, 0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.5); }
 }
 
 .loading-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.85);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     display: none; flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 1000; backdrop-filter: blur(10px);
 }
 .loading-overlay.active { display: flex; }
 .loading-overlay img { width: 200px; height: 200px; border-radius: 20px; box-shadow: 0 0 30px rgba(255,255,255,0.5); }
-.loading-text {
-    font-family: 'Orbitron', sans-serif; font-size: 2rem;
-    color: #fff; margin-top: 20px;
-    animation: blink 1s ease-in-out infinite;
-}
-.loading-status {
-    font-family: 'Rajdhani', sans-serif; font-size: 1rem;
-    color: rgba(255,255,255,0.5); margin-top: 8px; letter-spacing: 2px;
-}
+.loading-text { font-family: 'Orbitron', sans-serif; font-size: 2rem; color: #fff; margin-top: 20px; animation: blink 1s ease-in-out infinite; }
+.loading-status { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: rgba(255,255,255,0.5); margin-top: 8px; letter-spacing: 2px; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
 </style>
 </head>
@@ -242,9 +152,7 @@ body::before {
     </div>
 </div>
 
-<div class="ntp" id="ntp">
-    <h1>classroomspot web</h1>
-</div>
+<div class="ntp" id="ntp"><h1>classroomspot web</h1></div>
 
 <div class="loading-overlay" id="loader">
     <img src="https://media1.tenor.com/m/fitGu2TwtHoAAAAd/cat-hyppy.gif" alt="Loading">
@@ -263,19 +171,19 @@ const searchEngines = {
     startpage:  "https://www.startpage.com/sp/search?query="
 };
 
-const tabsEl          = document.getElementById("tabs");
-const newTabBtn       = document.getElementById("newtab");
-const urlInput        = document.getElementById("url");
-const ntp             = document.getElementById("ntp");
-const loader          = document.getElementById("loader");
-const loadStatus      = document.getElementById("loadStatus");
-const searchEngineSelect = document.getElementById("searchEngine");
+const tabsEl   = document.getElementById("tabs");
+const newTabBtn= document.getElementById("newtab");
+const urlInput = document.getElementById("url");
+const ntp      = document.getElementById("ntp");
+const loader   = document.getElementById("loader");
+const loadStatus = document.getElementById("loadStatus");
+const engineSel= document.getElementById("searchEngine");
 
 let tabs = [], activeId = null, idCounter = 0;
 
 const showLoader = () => loader.classList.add("active");
 const hideLoader = () => loader.classList.remove("active");
-const setStatus  = msg => loadStatus.textContent = msg;
+const setStatus  = m  => loadStatus.textContent = m;
 
 // Snow
 (function(){
@@ -291,6 +199,17 @@ const setStatus  = msg => loadStatus.textContent = msg;
     }
 })();
 
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Failed to load: " + src));
+        document.head.appendChild(s);
+    });
+}
+
 function waitForUV() {
     return new Promise((resolve, reject) => {
         const start = Date.now();
@@ -298,7 +217,7 @@ function waitForUV() {
             if (typeof self.__uv$config !== "undefined" && typeof self.__uv$config.encodeUrl === "function") {
                 resolve();
             } else if (Date.now() - start > 8000) {
-                reject(new Error("UV config failed to load. Check uv.bundle.js and uv.config.js exist at root."));
+                reject(new Error("UV config never loaded. Check /uv/uv.bundle.js and /uv/uv.config.js are being served."));
             } else {
                 setTimeout(check, 50);
             }
@@ -323,54 +242,10 @@ function normalize(input) {
     if (/^https?:\/\//i.test(input)) return input;
     if (/^[\w-]+(\.[a-z]{2,})+(\/.*)?$/i.test(input) && !input.includes(" "))
         return "https://" + input;
-    return searchEngines[searchEngineSelect.value] + encodeURIComponent(input);
+    return searchEngines[engineSel.value] + encodeURIComponent(input);
 }
 
-function createTab(url) {
-    const id = idCounter++;
-    const iframe = document.createElement("iframe");
-    iframe.className = "viewframe";
-    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-pointer-lock allow-presentation");
-    document.body.appendChild(iframe);
-
-    const tabBtn = document.createElement("div");
-    tabBtn.className = "tab";
-    tabBtn.innerHTML = `<span>New Tab</span><i class="fas fa-xmark"></i>`;
-    tabBtn.addEventListener("click", e => {
-        if (e.target.closest("i")) closeTab(id);
-        else activateTab(id);
-    });
-    tabsEl.insertBefore(tabBtn, newTabBtn);
-    tabs.push({ id, iframe, tabBtn, history: [], index: -1 });
-    activateTab(id);
-    if (url) navigate(url);
-}
-
-function activateTab(id) {
-    activeId = id;
-    tabs.forEach(t => {
-        t.iframe.classList.toggle("active", t.id === id);
-        t.tabBtn.classList.toggle("active", t.id === id);
-    });
-    const tab = getTab();
-    if (!tab) return;
-    if (tab.index >= 0) {
-        urlInput.value = tab.history[tab.index];
-        ntp.style.display = "none";
-    } else {
-        urlInput.value = "";
-        ntp.style.display = "flex";
-    }
-}
-
-function closeTab(id) {
-    if (tabs.length === 1) return;
-    const i = tabs.findIndex(t => t.id === id);
-    tabs[i].iframe.remove();
-    tabs[i].tabBtn.remove();
-    tabs.splice(i, 1);
-    activateTab(tabs[Math.max(0, i - 1)].id);
-}
+function getTab() { return tabs.find(t => t.id === activeId); }
 
 function navigate(input, push) {
     if (push === undefined) push = true;
@@ -411,72 +286,87 @@ function navigate(input, push) {
     setTimeout(hideLoader, 10000);
 }
 
-function getTab() { return tabs.find(t => t.id === activeId); }
+function createTab(url) {
+    const id = idCounter++;
+    const iframe = document.createElement("iframe");
+    iframe.className = "viewframe";
+    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-pointer-lock allow-presentation");
+    document.body.appendChild(iframe);
 
-document.getElementById("back").onclick = () => {
-    const t = getTab(); if (!t || t.index <= 0) return;
-    t.index--; navigate(t.history[t.index], false);
-};
-document.getElementById("forward").onclick = () => {
-    const t = getTab(); if (!t || t.index >= t.history.length - 1) return;
-    t.index++; navigate(t.history[t.index], false);
-};
-document.getElementById("reload").onclick = () => {
-    const t = getTab(); if (t && t.history[t.index]) navigate(t.history[t.index], false);
-};
-document.getElementById("popout").onclick = () => {
-    const t = getTab(); if (t && t.iframe.src) window.open(t.iframe.src, "_blank");
-};
-urlInput.addEventListener("keydown", e => {
-    if (e.key === "Enter" && urlInput.value.trim()) { e.preventDefault(); navigate(urlInput.value); }
-});
+    const tabBtn = document.createElement("div");
+    tabBtn.className = "tab";
+    tabBtn.innerHTML = `<span>New Tab</span><i class="fas fa-xmark"></i>`;
+    tabBtn.addEventListener("click", e => {
+        if (e.target.closest("i")) closeTab(id);
+        else activateTab(id);
+    });
+    tabsEl.insertBefore(tabBtn, newTabBtn);
+    tabs.push({ id, iframe, tabBtn, history: [], index: -1 });
+    activateTab(id);
+    if (url) navigate(url);
+}
+
+function activateTab(id) {
+    activeId = id;
+    tabs.forEach(t => {
+        t.iframe.classList.toggle("active", t.id === id);
+        t.tabBtn.classList.toggle("active", t.id === id);
+    });
+    const tab = getTab();
+    if (!tab) return;
+    if (tab.index >= 0) { urlInput.value = tab.history[tab.index]; ntp.style.display = "none"; }
+    else { urlInput.value = ""; ntp.style.display = "flex"; }
+}
+
+function closeTab(id) {
+    if (tabs.length === 1) return;
+    const i = tabs.findIndex(t => t.id === id);
+    tabs[i].iframe.remove(); tabs[i].tabBtn.remove(); tabs.splice(i, 1);
+    activateTab(tabs[Math.max(0, i - 1)].id);
+}
+
+document.getElementById("back").onclick = () => { const t = getTab(); if (!t || t.index <= 0) return; t.index--; navigate(t.history[t.index], false); };
+document.getElementById("forward").onclick = () => { const t = getTab(); if (!t || t.index >= t.history.length - 1) return; t.index++; navigate(t.history[t.index], false); };
+document.getElementById("reload").onclick = () => { const t = getTab(); if (t && t.history[t.index]) navigate(t.history[t.index], false); };
+document.getElementById("popout").onclick = () => { const t = getTab(); if (t && t.iframe.src) window.open(t.iframe.src, "_blank"); };
+urlInput.addEventListener("keydown", e => { if (e.key === "Enter" && urlInput.value.trim()) { e.preventDefault(); navigate(urlInput.value); } });
 newTabBtn.onclick = () => createTab();
 
-// BOOT — wait for UV and SW before allowing navigation
+// BOOT — load scripts in order, wait for SW, then open tab
 (async () => {
     showLoader();
     try {
+        setStatus("Loading UV...");
+        await loadScript("/uv/uv.bundle.js");
+
+        setStatus("Loading config...");
+        await loadScript("/uv/uv.config.js");
+
         setStatus("Waiting for UV...");
         await waitForUV();
 
-        // SW is uv.sw.js at root, scope must match prefix /uv/service/
         setStatus("Registering service worker...");
         if (navigator.serviceWorker) {
-            try {
-                await navigator.serviceWorker.register("/uv.sw.js", { scope: "/uv/service/" });
-                await waitForSW();
-            } catch(e) {
-                // GitHub Pages may block scope — try without scope header
-                // You may need a Service-Worker-Allowed header on your server
-                console.warn("SW scope error:", e.message);
-                try {
-                    await navigator.serviceWorker.register("/uv.sw.js");
-                    await waitForSW();
-                } catch(e2) {
-                    console.warn("SW failed:", e2.message);
-                }
-            }
+            await navigator.serviceWorker.register("/uv/sw.js", { scope: "/uv/service/" });
+            await waitForSW();
         }
 
-        // BareMux — worker.js and index.mjs are at root
         setStatus("Starting transport...");
-        if (typeof BareMux !== "undefined") {
-            const conn = new BareMux.BareMuxConnection("/worker.js");
-            await conn.setTransport("/index.mjs", [{ websocket: "wss://wisp.rhw.one/" }]);
-        }
+        await loadScript("/baremux/index.js");
+        const conn = new BareMux.BareMuxConnection("/baremux/worker.js");
+        await conn.setTransport("/libcurl/index.mjs", [{ websocket: "wss://wisp.rhw.one/" }]);
 
         setStatus("Ready!");
         hideLoader();
-        createTab(); // open blank new tab
+        createTab();
 
     } catch(err) {
         setStatus("Error: " + err.message);
-        console.error(err);
+        console.error("Boot error:", err);
         hideLoader();
         createTab();
     }
 })();
 </script>
-
 </body>
 </html>
