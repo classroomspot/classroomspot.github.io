@@ -1,136 +1,324 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassroomSpot Games</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>zodiac</title>
 
-        body {
-            background-color: #0d0d0d;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        .header {
-            padding: 30px 40px 20px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-        }
+<style>
+:root {
+  --panel: rgba(20,20,20,0.55);
+  --border: rgba(255,255,255,0.08);
+  --text: #e5e5e5;
+  --muted: #9a9a9a;
+  --hover: rgba(255,255,255,0.06);
+  --error: #ff4d4d;
+}
 
-        .header h1 {
-            color: #ffffff;
-            font-size: 2.5rem;
-            font-weight: 300;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            font-style: italic;
-        }
+* { box-sizing: border-box; }
 
-        .header .subtitle {
-            color: #888888;
-            font-size: 1rem;
-            font-weight: 400;
-        }
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
 
-        #games {
-            flex: 1;
-            padding: 20px 40px;
-            min-height: 500px;
-        }
+  backdrop-filter: blur(20px);
+}
 
-        .footer {
-            padding: 20px 40px;
-            background-color: #0d0d0d;
-            border-top: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+#loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 
-        .footer-brand {
-            color: #666;
-            font-size: 0.9rem;
-            font-weight: 400;
-        }
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(14px);
 
-        .footer-brand span {
-            color: #ffffff;
-            font-weight: 500;
-        }
+  z-index: 9999999;
+  transition: opacity .4s ease;
+}
 
-        .footer-copyright {
-            color: #666;
-            font-size: 0.85rem;
-        }
+#loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 300px;
-            color: #666;
-            font-size: 1.2rem;
-        }
+.loader-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+.loader-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
 
-        ::-webkit-scrollbar-track {
-            background: #0d0d0d;
-        }
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
+h1 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 600;
+}
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #444;
-        }
-    </style>
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#search {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+  backdrop-filter: blur(10px);
+}
+
+.status {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.error {
+  color: var(--error);
+  margin-bottom: 10px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+}
+
+.card:hover .thumb {
+  filter: blur(6px) brightness(0.7);
+  transform: scale(1.05);
+}
+
+.card:hover .title {
+  opacity: 1;
+}
+</style>
 </head>
+
 <body>
-    <div class="header">
-        <h1>classroomspot games</h1>
-        <p class="subtitle" id="game-count">Browse and play 1,168 games</p>
+
+<div id="loader">
+  <div class="loader-title">Loading</div>
+  <div class="loader-sub" id="loaderText">0 / 0 chunks loaded</div>
+</div>
+
+<main class="wrap">
+  <h1>games</h1>
+
+  <div class="toolbar">
+    <input id="search" placeholder="Search..." />
+    <div class="status"><span id="count">0</span></div>
+  </div>
+
+  <div id="error" class="error" hidden></div>
+  <section id="cards" class="cards"></section>
+</main>
+
+<script>
+const BASES = [
+  "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/",
+  "https://raw.githubusercontent.com/Hydra-Network/hydra-assets/main/",
+  "https://raw.githack.com/Hydra-Network/hydra-assets/main/"
+];
+
+const JSON_PATH = "gmes.json";
+const GAME_PREFIX = "gmes/";
+const THUMB_PREFIX = "/";
+
+let games = [];
+
+const elCards = document.getElementById("cards");
+const elSearch = document.getElementById("search");
+const elCount = document.getElementById("count");
+const elError = document.getElementById("error");
+
+function showError(msg) {
+  elError.hidden = false;
+  elError.textContent = msg;
+}
+
+async function fetchJSON() {
+  for (const base of BASES) {
+    try {
+      const res = await fetch(base + JSON_PATH);
+      if (!res.ok) continue;
+      return await res.json();
+    } catch {}
+  }
+  throw new Error();
+}
+
+async function fetchGame(path) {
+  for (const base of BASES) {
+    try {
+      const res = await fetch(base + GAME_PREFIX + path);
+      if (!res.ok) continue;
+      return await res.text();
+    } catch {}
+  }
+  throw new Error();
+}
+
+function buildImage(path) {
+  if (!path) return "";
+  const clean = path.replace(/^\/+/, '');
+
+  return `
+    <img class="thumb"
+      src="${BASES[0] + THUMB_PREFIX + clean}"
+      onerror="
+        if (!this.dataset.fallback) {
+          this.dataset.fallback = 1;
+          this.src='${BASES[1] + THUMB_PREFIX + clean}';
+        } else if (this.dataset.fallback == 1) {
+          this.dataset.fallback = 2;
+          this.src='${BASES[2] + THUMB_PREFIX + clean}';
+        }
+      "
+    >
+  `;
+}
+
+function render(data, q = "") {
+  const filtered = data.filter(g =>
+    (g.title + g.file_name).toLowerCase().includes(q.toLowerCase())
+  );
+
+  elCards.innerHTML = filtered.map(g => `
+    <div class="card" data-path="${g.file_name}">
+      ${buildImage(g.thumb)}
+      <div class="title">${g.title}</div>
     </div>
+  `).join("");
 
-    <div id="games">
-        <div class="loading">Loading games...</div>
-    </div>
+  elCount.textContent = filtered.length;
 
-    <div class="footer">
-        
-        <div class="footer-copyright">
-            
-        </div>
-    </div>
+  document.querySelectorAll(".card").forEach(el => {
+    el.onclick = () => loadGame(el.dataset.path);
+  });
 
-    <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
-    <script>
-        Lumin.init({
-            container: '#games',
-            theme: 'dark'
-        });
+  setTimeout(trackImages, 0);
+}
 
-        setTimeout(() => {
-            const gamesContainer = document.querySelector('#games');
-            const gameCards = gamesContainer.querySelectorAll('[data-game], .game-card, .lumin-game');
+function injectSafe(html) {
+  const safe = html.replace(/<\/script>/gi, '</scr' + 'ipt>');
+  document.open();
+  document.write(safe);
+  document.close();
+}
 
-            if (gameCards.length > 0) {
-                document.getElementById('game-count').textContent = `Browse and play ${gameCards.length.toLocaleString()} games`;
-            }
-        }, 3000);
-    </script>
+async function loadGame(path) {
+  try {
+    const html = await fetchGame(path);
+    injectSafe(html);
+  } catch {
+    showError("Failed to load game.");
+  }
+}
+
+function trackImages(){
+  const imgs = [...document.querySelectorAll(".thumb")];
+  const total = imgs.length;
+  let loaded = 0;
+
+  const loader = document.getElementById("loader");
+  const text = document.getElementById("loaderText");
+
+  if(total === 0){
+    loader.classList.add("hidden");
+    return;
+  }
+
+  function update(){
+    loaded++;
+    text.textContent = `${loaded} / ${total} chunks loaded`;
+
+    if(loaded >= total){
+      setTimeout(() => {
+        loader.classList.add("hidden");
+      }, 300);
+    }
+  }
+
+  imgs.forEach(img => {
+    if(img.complete){
+      update();
+    } else {
+      img.onload = update;
+      img.onerror = update;
+    }
+  });
+}
+
+elSearch.oninput = e => {
+  render(games, e.target.value);
+};
+
+(async () => {
+  try {
+    games = await fetchJSON();
+    render(games);
+  } catch {
+    showError("Failed to load games list.");
+  }
+})();
+</script>
+
 </body>
 </html>
