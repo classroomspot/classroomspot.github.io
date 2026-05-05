@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>classroomspot</title>
+<title>classroomspot games</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -22,45 +22,24 @@
 body {
   margin: 0;
   font-family: "Inter", system-ui, sans-serif;
-  background: transparent;
+  background: #000;
   color: var(--text);
   font-size: 13px;
-
-  backdrop-filter: blur(20px);
+  overflow-x: hidden;
 }
 
-#loader {
+#particles {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(14px);
-
-  z-index: 9999999;
-  transition: opacity .4s ease;
-}
-
-#loader.hidden {
-  opacity: 0;
+  z-index: 0;
   pointer-events: none;
 }
 
-.loader-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
 
-.loader-sub {
-  font-size: 13px;
-  color: var(--muted);
-}
 
 .wrap {
+  position: relative;
+  z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
@@ -149,14 +128,14 @@ h1 {
   opacity: 1;
 }
 </style>
+<base target="_blank">
 </head>
 
 <body>
 
-<div id="loader">
-  <div class="loader-title">Loading</div>
-  <div class="loader-sub" id="loaderText">0 / 0 chunks loaded</div>
-</div>
+<canvas id="particles"></canvas>
+
+
 
 <main class="wrap">
   <h1>games</h1>
@@ -235,6 +214,16 @@ function buildImage(path) {
   `;
 }
 
+function dedupeGames(data) {
+  const seen = new Set();
+  return data.filter(g => {
+    const key = (g.file_name || "").toLowerCase().trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function render(data, q = "") {
   const filtered = data.filter(g =>
     (g.title + g.file_name).toLowerCase().includes(q.toLowerCase())
@@ -273,46 +262,73 @@ async function loadGame(path) {
 }
 
 function trackImages(){
-  const imgs = [...document.querySelectorAll(".thumb")];
-  const total = imgs.length;
-  let loaded = 0;
-
-  const loader = document.getElementById("loader");
-  const text = document.getElementById("loaderText");
-
-  if(total === 0){
-    loader.classList.add("hidden");
-    return;
-  }
-
-  function update(){
-    loaded++;
-    text.textContent = `${loaded} / ${total} chunks loaded`;
-
-    if(loaded >= total){
-      setTimeout(() => {
-        loader.classList.add("hidden");
-      }, 300);
-    }
-  }
-
-  imgs.forEach(img => {
-    if(img.complete){
-      update();
-    } else {
-      img.onload = update;
-      img.onerror = update;
-    }
-  });
+  // loader removed
 }
 
 elSearch.oninput = e => {
   render(games, e.target.value);
 };
 
+/* White Particle Effect */
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const PARTICLE_COUNT = 80;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.speedY = (Math.random() - 0.5) * 0.4;
+      this.opacity = Math.random() * 0.5 + 0.2;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+        this.reset();
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
 (async () => {
   try {
-    games = await fetchJSON();
+    const raw = await fetchJSON();
+    games = dedupeGames(raw);
     render(games);
   } catch {
     showError("Failed to load games list.");
